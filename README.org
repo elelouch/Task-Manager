@@ -9,3 +9,27 @@ Tech used:
  - Express Framework.
  - MongoDB.
 The idea of the app, as said, was practice. This has no auth and anyone can tinker it so isn't a good a idea to upload it with a working database and all the show.
+**  If you want to test it
+1) Make sure you have node and npm installed.
+2) Execute on the shell:
+   #+begin_src
+
+$ git clone https://github.com/Ee-R/Task-Manager.git
+$ cd Task-Manager && echo "MONGO_URI=" >> .env
+$ npm install
+
+   #+end_src
+3) Set your own MongoDB database with MongoDB Atlas. Go to the Atlas interface. Search your Database.
+4) Go to your own cluster and click 'Connect your application'
+5) Copy-paste in the '.env' file the connection string like so.
+   #+begin_src
+
+    #this should be the .env file
+    MONGO_URI=$CONNECTION_STRING_HERE
+
+   #+end_src
+6) Execute on the shell:
+   #+begin_src
+$ npm start
+   #+end_src
+7) Search on any browser 'localhost:3000/'
