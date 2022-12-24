@@ -8,4 +8,4 @@ Tech used:
  - NodeJS (with dotenv, nodemon, mongoose, and express itself).
  - Express Framework.
  - MongoDB.
-The idea of the app, as said, was practice. This has no auth and anyone can tinker it so itsn't a good a idea to upload it with a working database and all the show.
+The idea of the app, as said, was practice. This has no auth and anyone can tinker it so isn't a good a idea to upload it with a working database and all the show.
