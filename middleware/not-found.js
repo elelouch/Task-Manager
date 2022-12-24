@@ -1,7 +1,7 @@
 const {NOT_FOUND:nf} = require('../http-codes');
 
 function notFound(error,request,response,next){
-  if(error.status === nf){
+  if(error.statusCode === nf){
     return response
       .status(nf)
       .json({
