@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const checkMongooseId = require('../middleware/check-id');
 
 const {
   getTasks,
@@ -7,12 +8,10 @@ const {
   getTask,
   updateTask,
   deleteTask,
-  checkMongooseId,
 } = require('../controllers/tasks-controllers')
 /* import controllers functions */
 
 router.use('/:id',checkMongooseId);
-
 router
   .route('/')
   .get(getTasks)

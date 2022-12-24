@@ -1,5 +1,5 @@
 const httpCodes = require('../http-codes');
-
+//last reach of an error
 function errorLogAndResponse(error,request,response,next){
   console.log(error);
   response

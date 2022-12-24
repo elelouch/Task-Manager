@@ -6,7 +6,9 @@ const PORT = process.env.PORT || 3000;
 const tasks = require('./routes/tasks');
 const connectDB = require('./db/connect');
 const mongoURI = process.env.MONGO_URI;
-const errorHandler = require('./controllers/error-handler');
+const internalErrorHandler = require('./middleware/internal-error');
+const notFound = require('./middleware/not-found');
+
 
 app.use(express.static('./public')); // serve statics file using get method when required
 app.use(express.json());
@@ -17,14 +19,29 @@ app.use(express.json());
 app.use('/api/v1/tasks',tasks);
 
 app.get('/',(request,response)=>{
-  console.log(`pipu`);
   response
     .status(httpCodes.SUCCESS)
     .json({
       status:'ok',
-      message:'mi nombre es ricardo, te aviso por las dudas'
+      message:'serving main page'
     })
 })
+
+
+// error handlers sequence
+app.use([notFound,internalErrorHandler]);
+// the stack reaches this last function, if there aren't any errors, but can't get the endpoint
+app.use('*',(request,response)=>{
+  return response
+    .status(httpCodes.BAD_REQ)
+    .json({
+      status:'not found',
+      message:'not valid endpoint'
+    })
+})
+
+//Add error handlers at the end of the middleware stack, so each middleware that won't handle the error sent in
+//each catch block by using next(err), handles it to the next middleware unitl it reaches internalErrorHandler
 
 async function startDB(uri){
   try{
@@ -36,7 +53,4 @@ async function startDB(uri){
     console.log(error);
   }
 }
-app.use('/',errorHandler);
-//Add error handlers at the end of the middleware stack, so each middleware that won't handle the error sent in
-//each catch block by using next(err), handles it to the next middleware unitl it reaches errorLoggerNResponse
 startDB(mongoURI);

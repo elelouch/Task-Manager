@@ -1,117 +1,80 @@
+const asyncWrapper = require('../middleware/async');
 const httpCodes = require('../http-codes');
-const mongoose = require('mongoose');
 const TaskModel = require('../models/Task'); //each schema maps to a mongodb collection, it shapes how the document(instance of a model) would be shaped, it has other uses.
 //TaskModel is a class that would instance every document in the mongoDB
+const customError = require('../errors/custom-error');
+const notFoundErr = new customError('Not Found',httpCodes.NOT_FOUND);
 
-async function getTasks(request,response,next){
-  //request wasn't required since I requested all objects
-  try{
-    const tasks = await TaskModel.find({});// devuelve un array de objetos
-    response
-      .status(httpCodes.SUCCESS)
-      .json({
-        status:'success',
-        allTasks:tasks
-      })
-  }catch(err){
-    next(err)
-  }
-}
-async function createTask(request,response,next){
-  try{
-    const taskName = request.body.name;
-    const task = await TaskModel.create({
-      name:taskName,
+/* here we send a function to an async wrapper whose job is only to avoid try catch boilerplate.
+ * it will return a function that has the sent function on the try scope and a next(error)
+ * on the catch scope. When the returned function gets invoked, it awaits the function */
+const getTasks = asyncWrapper(async (request,response)=>{
+  const tasks = await TaskModel.find({}); // returns a query with an array of mongodb documents (app tasks)
+  response
+    .status(httpCodes.SUCCESS)
+    .json({
+      status:'success',
+      allTasks:tasks,
+      amount:tasks.length
     })
-    response
-      .status(httpCodes.SUCCESS)
-      .json({
-        task
-      })
-  }catch(err){
-    next(err)
-  }
-}
-async function getTask(request,response,next){
-  try{
-    const taskRequested = await TaskModel.findById(request.params.id);
-    if(!taskRequested){
-      return response
-        .status(httpCodes.NOT_FOUND)
-        .json({
-          status:'not found',
-          message:'no task found with that id'
-        })
-    }
-    response
-      .status(httpCodes.SUCCESS)
-      .json({
-        status:'success',
-        task:taskRequested
-      })
-  }catch(err){
-    next(err)
-  }
-}
-async function updateTask(request,response,next){
-  try{
-    const newTask = await TaskModel.findByIdAndUpdate(request.params.id, request.body,{ //retrieves new task instead of the old one
-      returnDocument : 'after',
-      runValidators : true
+})
+const createTask = asyncWrapper(async (request,response)=>{
+  const {name} = request.body;
+  const task = await TaskModel.create({name});
+
+  response
+    .status(httpCodes.SUCCESS)
+    .json({
+      status:'success',
+      task
     })
+})
+const getTask = asyncWrapper(async (request,response)=>{
+  const taskRequested = await TaskModel.findById(request.params.id);
 
-    response
-      .status(httpCodes.SUCCESS)
-      .json({
-        status:'success',
-        task:newTask
-      })
+  if(!taskRequested)
+    throw notFoundErr;
 
-  }catch(err){
-    next(err)
-  }
-}
+  response
+    .status(httpCodes.SUCCESS)
+    .json({
+      status:'success',
+      task:taskRequested
+    })
+})
+const updateTask = asyncWrapper(async (request,response)=>{
+  const newTask = await TaskModel.findByIdAndUpdate(request.params.id, request.body,{
+    //retrieves new task instead of the old one
+    returnDocument : 'after',
+    runValidators : true
+  })
 
-async function deleteTask(request,response,next){
-  try{
-    const taskDeleted = await TaskModel.findByIdAndDelete(request.params.id);
-    if(!taskDeleted){
-    return response
-        .status(httpCodes.NOT_FOUND)
-        .json({
-          status:'not found',
-          message:'no task found with that id'
-        })
-    }
-    response
-      .status(httpCodes.SUCCESS)
-      .json({
-        status:'success',
-        task:taskDeleted
-      })
+  if(!newTask)
+    throw notFoundErr;
 
-  }catch(err){
-    next(err);
-  }
-}
-//care with this function since it isn't async
-function checkMongooseId(request,response,next){
-  const taskID = request.params.id;
-  if(!mongoose.isValidObjectId(taskID)){
-    return response
-      .status(httpCodes.BAD_REQ)
-      .json({
-        status:'bad request',
-        message:"id provided isn't valid"
-      })
-  }
-  next();
-}
+  response
+    .status(httpCodes.SUCCESS)
+    .json({
+      status:'success',
+      task:newTask
+    })
+})
+const deleteTask = asyncWrapper(async (request,response)=>{
+  const taskDeleted = await TaskModel.findByIdAndDelete(request.params.id);
+  if(!taskDeleted)
+    throw notFoundErr;
+
+  response
+    .status(httpCodes.SUCCESS)
+    .json({
+      status:'success',
+      task:taskDeleted
+    })
+})
 module.exports = {
   createTask,
   getTask,
   getTasks,
   updateTask,
   deleteTask,
-  checkMongooseId,
 }
