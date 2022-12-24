@@ -27,16 +27,16 @@ const showTasks = async () => {
         const { completed, _id: taskID, name } = task
         return `<div class="single-task ${completed && 'task-completed'}">
                 <h5><span><i class="far fa-check-circle"></i></span>${name}</h5>
-                <div class="task-links">
-
-                <!-- edit link -->
-                <a href="task.html?id=${taskID}"  class="edit-link">
-                <i class="fas fa-edit"></i>
-                </a>
-                <!-- delete btn -->
-                <i class="fas fa-trash"></i>
-                </button>
-                </div>
+                  <div class="task-links">
+                  <!-- edit link -->
+                    <a href="task.html?id=${taskID}"  class="edit-link">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <!-- delete btn -->
+                    <button class="delete-btn" data-id="${taskID}">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
                 </div>`
       })
       .join('')
@@ -55,6 +55,7 @@ tasksDOM.addEventListener('click', async (e) => {
   if (el.parentElement.classList.contains('delete-btn')) {
     loadingDOM.style.visibility = 'visible'
     const id = el.parentElement.dataset.id
+
     try {
       await axios.delete(`/api/v1/tasks/${id}`)
       showTasks()
@@ -80,7 +81,7 @@ formDOM.addEventListener('submit', async (e) => {
     formAlertDOM.classList.add('text-success')
   } catch (error) {
     formAlertDOM.style.display = 'block'
-    formAlertDOM.innerHTML = `error, please try again`
+    formAlertDOM.innerHTML = `error, please try again. Min characters: 5, max characters: 30.`
   }
   setTimeout(() => {
     formAlertDOM.style.display = 'none'

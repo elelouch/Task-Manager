@@ -55,7 +55,7 @@ async function getTask(request,response,next){
 }
 async function updateTask(request,response,next){
   try{
-    patchedTask = await TaskModel.findByIdAndUpdate(request.params.id, request.body,{
+    const newTask = await TaskModel.findByIdAndUpdate(request.params.id, request.body,{ //retrieves new task instead of the old one
       returnDocument : 'after',
       runValidators : true
     })
@@ -64,7 +64,7 @@ async function updateTask(request,response,next){
       .status(httpCodes.SUCCESS)
       .json({
         status:'success',
-        oldData:patchedTask
+        task:newTask
       })
 
   }catch(err){
