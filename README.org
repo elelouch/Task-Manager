@@ -2,6 +2,7 @@
 #+AUTHOR: Elias Rojas
 
 **  Task Manager App
+Store your task, on your app!
 Custom app used for practicing CRUD operations on a MongoDB database using Atlas.
 Tech used:
  - Plain Javascript on frontend with axios api.
